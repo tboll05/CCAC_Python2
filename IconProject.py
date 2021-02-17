@@ -1,7 +1,8 @@
 #This program reads in a data file of on (1) and off (0) values and prints them out into a picture.
 
 
-#Read the csv file and pull data into a list of lists.  Becomes 1 list made up of 10 lists which each contain 10 elements.
+#Prompt user to input 10 10 digit binary integers made up of 1s and 0s.  Each 10 digit intger is made into a list and then inserted into an overall list.
+#The final result is a list of 10 lists, each containing 10 integers of 1 or 0.
 def read():
     data = []
     count = 1
