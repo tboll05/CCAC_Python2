@@ -35,12 +35,12 @@ def display(data, scale):
             print(item * scale, end = " ")
         print()
         if scale > 1:
-            timer = 1
-            while timer != scale:
+            numLines = 1
+            while numLines != scale:
                 for item in line:
                     print(item * scale, end = " ")
                 print()
-                timer += 1
+                numLines += 1
 
 
 #Invert data so the picture will be upside down.
