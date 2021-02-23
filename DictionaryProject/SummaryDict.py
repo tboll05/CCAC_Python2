@@ -1,6 +1,6 @@
 import csv
 
-
+#Function to build dictionary using csv file as parameter.
 def buildDictionary(f):
     
     summaryDict = {'Facility Amount': {}, 'Chemical': {}, 'City': {}, 'Average Release Amount': 0.0, 'Total Records': 0}
