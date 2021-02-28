@@ -59,6 +59,23 @@ def top_N_estimated_facility_release(userDict, n):
 
 myDict = buildDictionary('tri_air.csv')
             
-topN = int(input("How many of the highest releasing facilities do you want to see?"))
+while True:
+    try:
+        topN = int(input("How many of the highest releasing facilities do you want to see?" + " "))
+        if topN < 0:
+            print("Please enter a whole number greater than 0.")
 
+    except ValueError:
+        print("Please enter a whole number greater than 0.")
+        continue
+    
+    else:
+        if topN > 0:
+            break
+
+print()
+print("Average Release Amount across all facilities:", myDict['Average Release Amount'])
+print()
+print(f'Top {topN} facilities by release amount:')
+print("-----------------------------------------")
 top_N_estimated_facility_release(myDict, topN)
