@@ -3,4 +3,4 @@ This program is given a file on toxic chemicals released into the air by various
 It provides the user with the option to see a print out of the facilities releasing the highest amount of chemicals.
 
 ## Screen shot of program running
-![Insert Screen Shot](img/Capture.PNG)
+![Insert Screen Shot](Capture.PNG)
