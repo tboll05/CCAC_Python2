@@ -4,3 +4,6 @@ It provides the user with the option to see a print out of the facilities releas
 
 ## Screen shot of program running
 ![Insert Screen Shot](Capture.PNG)
+
+## Source of Data
+You can find this dataset and more [here](https://data.wprdc.org/dataset/toxic-release-inventory).
