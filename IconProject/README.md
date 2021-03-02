@@ -4,6 +4,7 @@ This program prompts the user to enter 100 integers of either 1 or 0 and then co
 The user also has the option to scale up the picture to make it larger or invert it to flip it upside down.
 
 ## Sample Screen Shots
+### Regular, Non-Scaled Image
 ![Insert Image](RegularIcon.PNG)
-
+### Scaled and Inverted Image
 ![Insert Image](InvertedIcon.PNG)
