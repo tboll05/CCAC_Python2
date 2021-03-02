@@ -1,4 +1,5 @@
- #This program reads in a data file of on (1) and off (0) values and prints them out into a picture.
+#This program prompts the user to enter 100 integers of either 1 or 0 and then converts these into a picture in a 10x10 grid.
+#1 represents a filled or on pixel and 0 represents a blank or off pixel.
 
 
 #Prompt user to input 10 10 digit binary integers made up of 1s and 0s.  Each 10 digit intger is made into a list and then inserted into an overall list.
