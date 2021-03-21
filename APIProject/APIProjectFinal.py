@@ -1,5 +1,5 @@
 #Timothy Bollig
-#This program askes the user to input a type of activity and then queries the Bored API for activity suggestions that fall under that type of activity.
+#This program asks the user to input a type of activity and then queries the Bored API for activity suggestions that fall under that type of activity.
 #It will build a list of 50 activities and then ask the user how many people they want to involve in the activity and filter the list down based on this criteria.
 #Duplicate activities are removed and the final list is printed out for the user to see and pick from.
 
@@ -62,14 +62,21 @@ def filter_activities_by_participants(activity_bank):
     #Force input to integer but truncating decimals.
     num_participants = math.trunc(float(input("How many people are in your group?")))
     
-    for item in activity_bank:
-        #Checking if activity is for given number of participants.
-        if item['participants'] >= num_participants:
-            #If it is, appending to filtered bank of activities.
-            filtered_bank_of_activities.append(item['activity'])
-        else:
-            #If not, pass over it and do nothing.
-            pass
+    #If the user wants to do something alone.  The program treats 0, 1, or any negative number as if the user wants to do something alone.
+    if num_participants <= 1:
+        for item in activity_bank:
+            if item['participants'] == 1:
+                filtered_bank_of_activities.append(item['activity'])
+            else:
+                pass
+    
+    #If the user wants to do something with at least one other person.
+    else:
+        for item in activity_bank:
+            if item['participants'] >= num_participants:
+                filtered_bank_of_activities.append(item['activity'])
+            else:
+                pass
     
     return filtered_bank_of_activities
 
