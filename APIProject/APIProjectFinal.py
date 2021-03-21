@@ -39,6 +39,9 @@ def create_url(activity_type):
 def create_bank_of_activities(full_url):
     
     activity_bank = []
+    print()
+    print("Finding activities for you........")
+    print()
     
     for item in range(50):
         #Querying the API for an activity suggestion of the given type.
