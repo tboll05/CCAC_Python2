@@ -7,3 +7,9 @@ Documentation on how to use the Bored API can be found [here](https://www.boreda
 ## Sample Screen Shots
 #### Asking the user to input the type of activity they are interested in.
 ![Insert Image](ActivityTypeInput.PNG)
+
+#### Asking the user the input how many participants they want involved in the activity.
+![Insert Image](ParticipantsInput.PNG)
+
+#### Printing out the suggested list of activities.
+![Insert Image](SuggestedActivities.PNG)
