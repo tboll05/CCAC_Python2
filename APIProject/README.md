@@ -4,3 +4,5 @@ This program asks the user to input a type of activity and then queries the Bore
 
 Documentation on how to use the Bored API can be found [here](https://www.boredapi.com/documentation).
 
+## Sample Screen Shots
+![Insert Image](ActivityTypeInput.PNG)
