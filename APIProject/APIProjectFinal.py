@@ -57,26 +57,32 @@ def create_bank_of_activities(full_url):
 #This will ask the user for the number of friends in their group that they want to take part in the activities.  It will then take the bank of suggested activities
 #and filter out the activities meant for less people than what the user has indicated.  It returns this remaining activities in a list of the activity names.
 def filter_activities_by_participants(activity_bank):
-    filtered_bank_of_activities = []
+    
+    #filtered_bank_of_activities = []
     
     #Force input to integer but truncating decimals.
     num_participants = math.trunc(float(input("How many people are in your group?")))
     
     #If the user wants to do something alone.  The program treats 0, 1, or any negative number as if the user wants to do something alone.
     if num_participants <= 1:
-        for item in activity_bank:
-            if item['participants'] == 1:
-                filtered_bank_of_activities.append(item['activity'])
-            else:
-                pass
+        filtered_bank_of_activities = [item['activity'] for item in activity_bank if item['participants'] == 1]
+
+
+        #for item in activity_bank:
+        #    if item['participants'] == 1:
+        #        filtered_bank_of_activities.append(item['activity'])
+        #    else:
+        #        pass
     
     #If the user wants to do something with at least one other person.
     else:
-        for item in activity_bank:
-            if item['participants'] >= num_participants:
-                filtered_bank_of_activities.append(item['activity'])
-            else:
-                pass
+        filtered_bank_of_activities = [item['activity'] for item in activity_bank if item['participants'] >= num_participants]
+
+        #for item in activity_bank:
+        #    if item['participants'] >= num_participants:
+        #        filtered_bank_of_activities.append(item['activity'])
+        #    else:
+        #        pass
     
     return filtered_bank_of_activities
 
