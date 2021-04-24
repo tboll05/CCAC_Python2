@@ -4,3 +4,10 @@ It then returns a list of rows for those winners who are 30 years of age or youn
 
 ## Sample Screen Shot
 ![Insert Image](SampleOutput.PNG)
+
+## Considerations for improvment
+If improved I would like to change the output into that of a dataframe using Pandas for better appearance.
+I would also like to add some error handling to avoid issues with running the program after an inital run.  Once the table has had data inserted into it, without error handling, trying to insert the data again with the same id numbers would break the primary key constraint and cause an error.  I would like to write error handling to account for this and bypass the insertions if that were the case.
+
+### Notes about work process
+I had to alter the original file slightly before saving it and reading it into the program.  There were an extra column to the far right of the table that was blank for all but two rows.  The values contained in the non-null rows lacked importance and caused issues with inserting into the SQL table because of the need for consistent quantities of values being passed in from the file.
