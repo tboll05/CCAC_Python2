@@ -274,6 +274,20 @@ def get_assault_totals(cursor):
         
     return totals
 
+######################################################################################################
+#Query the assault weapon stats SQL table and get top 10 states by total number of assaults.
+######################################################################################################
+def get_assault_top_10_states(dbconn):
+    df = pd.read_sql_query("SELECT state AS State, total_assaults AS [Total Assaults] FROM assault_weapon_stats ORDER BY total_assaults DESC LIMIT 10", dbconn)
+    return df
+
+######################################################################################################
+#Query the robbery weapon stats SQL table and get top 10 states by total number of robberies.
+######################################################################################################
+def get_robberies_top_10_states(dbconn):
+    df = pd.read_sql_query("SELECT state AS State, total_robberies AS [Total Robberies] FROM robbery_weapon_stats ORDER BY total_robberies DESC LIMIT 10", dbconn)
+    return df
+
 
 ######################################################################################################
 #Main Program
@@ -342,6 +356,13 @@ def main():
     df1 = pd.DataFrame({'Weapon Type':['Firearms', 'Knives and Cutting', 'Other', 'Personal'], 'Totals':total1})
     df2 = pd.DataFrame({'Weapon Type':['Firearms', 'Knives and Cutting', 'Other', 'Strong Arm'], 'Totals':total2})
 
+    #Build dataframes for top 10 states in total assaults and robberies.
+    top_assault_states = get_assault_top_10_states(dbconn)
+    top_robbery_states = get_robberies_top_10_states(dbconn)
+
+    ###############################################
+    #Code for displaying visuals.
+    ###############################################
     #Create column charts for each table.
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(18,5))
     df1.plot.bar(x='Weapon Type', y='Totals', rot= 0, ax=axes[0], subplots=True)
@@ -351,9 +372,23 @@ def main():
     #Create barplot for each unpivoted dataframe using Seaborn.
     figure = plt.figure(figsize=(18,5))
     figure.add_subplot(1,2,1)
-    sns.barplot(x='Weapon Type', y='Count', data=unpivot_assault_df)
+    sb1 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_assault_df)
     figure.add_subplot(1,2,2)
-    sns.barplot(x='Weapon Type', y='Count', data=unpivot_robbery_df)
+    sb2 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_robbery_df)
+    sb1.set(xlabel='Weapons in Assaults')
+    sb2.set(xlabel='Weapons in Robberies')
+    sb2.set(ylabel=None)
+    plt.show()
+
+    #Insert code for Top 10 state bar charts.
+    figure = plt.figure(figsize=(18,5))
+    figure.add_subplot(1,2,1)
+    sns.set_color_codes("pastel")
+    sb1 = sns.barplot(x="Total Assaults", y="State", data=top_assault_states, color="b")
+    figure.add_subplot(1,2,2)
+    sns.set_color_codes("pastel")
+    sb2 = sns.barplot(x="Total Robberies", y="State", data=top_robbery_states, color="b")
+    sb2.set(ylabel=None)
     plt.show()
 
     #Close the database connection and cursor
