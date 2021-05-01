@@ -346,15 +346,15 @@ def main():
     insert_dataframe_to_sqlite_DB(robberies_dataframe, 'robbery_weapon_stats', dbconn)
 
     #Create unpivoted dataframes in order to visualize as a barplot with Seaborn.
-    unpivot_assault_df = assaults_dataframe.melt(id_vars = ['state'], value_vars = ['firearms', 'knives_cutting_weapons', 'other_weapons', 'personal_weapons'], var_name = 'Weapon Type', value_name = 'Count')
-    unpivot_robbery_df = robberies_dataframe.melt(id_vars = ['state'], value_vars = ['firearms', 'knives_cutting_weapons', 'other_weapons', 'strong_arm'], var_name = 'Weapon Type', value_name = 'Count')
+    #unpivot_assault_df = assaults_dataframe.melt(id_vars = ['state'], value_vars = ['firearms', 'knives_cutting_weapons', 'other_weapons', 'personal_weapons'], var_name = 'Weapon Type', value_name = 'Count')
+    #unpivot_robbery_df = robberies_dataframe.melt(id_vars = ['state'], value_vars = ['firearms', 'knives_cutting_weapons', 'other_weapons', 'strong_arm'], var_name = 'Weapon Type', value_name = 'Count')
 
     #Query the SQL tables to build lists of SUMs for the different weapon types.
     total1 = get_assault_totals(cursor)
     total2= get_robbery_totals(cursor)
     #Create dataframes using these sums to be visualized as column charts.
-    df1 = pd.DataFrame({'Weapon Type':['Firearms', 'Knives and Cutting', 'Other', 'Personal'], 'Totals':total1})
-    df2 = pd.DataFrame({'Weapon Type':['Firearms', 'Knives and Cutting', 'Other', 'Strong Arm'], 'Totals':total2})
+    df1 = pd.DataFrame({'Weapon Used in Assault':['Firearms', 'Knives and Cutting', 'Other', 'Personal'], 'Totals':total1})
+    df2 = pd.DataFrame({'Weapon Used in Robbery':['Firearms', 'Knives and Cutting', 'Other', 'Strong Arm'], 'Totals':total2})
 
     #Build dataframes for top 10 states in total assaults and robberies.
     top_assault_states = get_assault_top_10_states(dbconn)
@@ -364,24 +364,26 @@ def main():
     #Code for displaying visuals.
     ###############################################
     #Create column charts for each table.
-    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(18,5))
-    df1.plot.bar(x='Weapon Type', y='Totals', rot= 0, ax=axes[0], subplots=True)
-    df2.plot.bar(x='Weapon Type', y='Totals', rot= 0, ax=axes[1], subplots=True)
+    figure, axes = plt.subplots(nrows=1, ncols=2, figsize=(18,5))
+    figure.suptitle("Comparison of Weapons Used in Assaults vs Robberies")
+    df1.plot.bar(x='Weapon Used in Assault', rot= 0, ax=axes[0])
+    df2.plot.bar(x='Weapon Used in Robbery', rot= 0, ax=axes[1])
     plt.show()
 
     #Create barplot for each unpivoted dataframe using Seaborn.
-    figure = plt.figure(figsize=(18,5))
-    figure.add_subplot(1,2,1)
-    sb1 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_assault_df)
-    figure.add_subplot(1,2,2)
-    sb2 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_robbery_df)
-    sb1.set(xlabel='Weapons in Assaults')
-    sb2.set(xlabel='Weapons in Robberies')
-    sb2.set(ylabel=None)
-    plt.show()
+    #figure = plt.figure(figsize=(18,5))
+    #figure.add_subplot(1,2,1)
+    #sb1 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_assault_df)
+    #figure.add_subplot(1,2,2)
+    #sb2 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_robbery_df)
+    #sb1.set(xlabel='Weapons in Assaults')
+    #sb2.set(xlabel='Weapons in Robberies')
+    #sb2.set(ylabel=None)
+    #plt.show()
 
     #Insert code for Top 10 state bar charts.
     figure = plt.figure(figsize=(18,5))
+    figure.suptitle("Comparison of Top 10 States in Aggravated Assaults and Robberies")
     figure.add_subplot(1,2,1)
     sns.set_color_codes("pastel")
     sb1 = sns.barplot(x="Total Assaults", y="State", data=top_assault_states, color="b")
