@@ -7,3 +7,13 @@ Lastly, the program also uses SQL to obtain the top 10 states with the highest a
 
 ## Program Output
 ![Insert Image](ProgramOutput.PNG)
+
+## Data Backed Claims
+1. Many more aggaravated assaults took place in 2019 than robberies.
+2. Firearms are the second most commonly used weapon in both aggravated assaults and robberies.
+3. Knives and other weapons such as bricks, bottles, or other blunt instruments are much more likely to be used in aggravated assaults than robberies.  This is most liekly because robberies are premediated and assaults tend to happen in the moment.
+4. Outside of using a firearm, robbers will most likely result to physical force using strong arm tactics and personal weapons such as fists and feet.
+5. California, Texas, Florida, and New York lead in both assaults and robberies for most incidents.  This is most likely because of sheer population number.  The more people, the more chance for assault or robbery to occur.
+
+## Running Instructions
+Please ensure you have an established Internet connection before running the program.
