@@ -9,6 +9,20 @@ import matplotlib.pyplot as plt
 ##########################################
 
 #####################################################################################################
+#Function to check if the user is connected to the Internet.
+#####################################################################################################  
+def network_check():
+    response = requests.get('http://google.com')
+    return response.status_code
+
+#####################################################################################################
+#Function to check if the webpage returns a 200 status code.
+##################################################################################################### 
+def check_status_code(url):
+    response = requests.get(url)
+    return response.status_code
+
+#####################################################################################################
 #Take in the url of the data table and pass it to BeautifulSoup and return the parsed HTML code text.
 #####################################################################################################  
 def get_beautifulsoup(url):
@@ -125,6 +139,11 @@ def close_DB_Resources(dbconn, cursor):
 #Create a table in the database called "robbery_weapon_stats".
 ######################################################################################################
 def create_robbery_table_sql(dbconn, cursor):
+    #Drop table if it already exists.
+    drop_existing_table = '''
+        DROP TABLE IF EXISTS robbery_weapon_stats;
+    '''
+    
     #Create table statement written in SQL.
     create_robbery_weapon_table_sql = '''
         CREATE TABLE IF NOT EXISTS
@@ -141,6 +160,10 @@ def create_robbery_table_sql(dbconn, cursor):
         )
     '''
     try:
+        #Execute above SQL code.
+        cursor.execute(drop_existing_table)
+        #Commit the changes to the database made by the SQL statement executed.
+        dbconn.commit()
         #Using the database connection established by the connect_to_database function, execute the SQL code provided above against that database.
         cursor.execute(create_robbery_weapon_table_sql)
         #Commit the changes to the database made by the SQL statement executed.
@@ -159,6 +182,11 @@ def create_robbery_table_sql(dbconn, cursor):
 #Create a table in the database called "assault_weapon_stats".
 ######################################################################################################
 def create_assault_table_sql(dbconn, cursor):
+    #Drop the table if it already exists
+    drop_existing_table = '''
+        DROP TABLE IF EXISTS assault_weapon_stats;
+    '''
+    
     #Create table statement written in SQL.
     create_assault_weapon_table_sql = '''
         CREATE TABLE IF NOT EXISTS
@@ -175,6 +203,10 @@ def create_assault_table_sql(dbconn, cursor):
         )
     '''
     try:
+        #Execute above SQL code.
+        cursor.execute(drop_existing_table)
+        #Commit the changes to the database made by the SQL statement executed.
+        dbconn.commit()
         #Using the database connection established by the connect_to_database function, execute the SQL code provided above against that database.
         cursor.execute(create_assault_weapon_table_sql)
         #Commit the changes to the database made by the SQL statement executed.
@@ -211,7 +243,7 @@ def change_dataframe_column_names(cursor,sql_table,dataframe):
 #Insert data from a dataframe into a SQL database table.
 ######################################################################################################
 def insert_dataframe_to_sqlite_DB(dataframe, sql_table, dbconn):
-    dataframe.to_sql(sql_table, dbconn, if_exists='append', index=False)
+    dataframe.to_sql(sql_table, dbconn, if_exists='replace', index=False)
     dbconn.commit()
 
 ######################################################################################################
@@ -293,108 +325,142 @@ def get_robberies_top_10_states(dbconn):
 #Main Program
 ######################################################################################################
 def main():
-    #Scraping and Building the Assaults Dataframe.
-    #Web address for FBI Aggravated Assaults by Weapon Type 2019 Table.
-    url = 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/tables/table-22'
-    #Obtain webpage HTML code.
-    soup = get_beautifulsoup(url)
-    #Scrape table data.
-    headers = scrape_headers(soup)
-    states = first_column_values(soup)
-    agg_assaults = scrape_values(soup,"odd group1")
-    firearms = scrape_values(soup,"even group2")
-    knives = scrape_values(soup,"odd group3")
-    other_weapons = scrape_values(soup,"even group4")
-    personal_weapons = scrape_values(soup,"odd group5")
-    agency_count = scrape_values(soup,"even group6")
-    populations = scrape_values(soup,"odd group7")
-    #Produce dataframe with scraped data.
-    assaults_dataframe = build_dataframe(headers, states, agg_assaults, firearms, knives, other_weapons, personal_weapons, agency_count, populations)
+    #Check to ensure the device is connected to the Internet. If you get a status_code of any kind, you have an internet connection.
+    #If Internet connection found, set program switch to True (On).
+    try:
+        network_check()
+        switch = True
+    #If no internet connection found you will get an error and the program will print a warning message and set switch to False (Off)
+    except:
+        print('No Internet Connection Found')
+        switch = False
 
-    #Scraping and Building the Robbery Dataframe
-    #Web address for FBI Robbery by Weapon Type 2019 Table.
-    url = 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/tables/table-21'
-    #Obtain webpage HTML code.
-    soup = get_beautifulsoup(url)
-    #Scrape table data.
-    headers = scrape_headers(soup)
-    states = first_column_values(soup)
-    robberies = scrape_values(soup,"odd group1")
-    firearms = scrape_values(soup,"even group2")
-    knives = scrape_values(soup,"odd group3")
-    other_weapons = scrape_values(soup,"even group4")
-    strong_arm = scrape_values(soup,"odd group5")
-    agency_count = scrape_values(soup,"even group6")
-    populations = scrape_values(soup,"odd group7")
-    #Produced dataframe with scraped data.
-    robberies_dataframe = build_dataframe(headers, states, robberies, firearms, knives, other_weapons, strong_arm, agency_count, populations)
+    #Switch being true means you are connected to the Internet.
+    if switch == True:
+        
+        #Check if both webpages are returned with a 200 status code.
+        url1 = 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/tables/table-22'
+        status1 = check_status_code(url1)
+        url2 = 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/tables/table-21'
+        status2 = check_status_code(url2)
 
-    #Connect to database/create one if not already existing.
-    dbconn, cursor = connect_to_database()
+        #If both webpages have a 200 status code, run rest of the program
+        if status1 == 200 and status2 == 200:
 
-    #Create tables in SQL to store scraped data.
-    create_assault_table_sql(dbconn, cursor)
-    create_robbery_table_sql(dbconn, cursor)
+            #Scraping and Building the Assaults Dataframe.
+            #Web address for FBI Aggravated Assaults by Weapon Type 2019 Table.
+            url = 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/tables/table-22'
+            #Obtain webpage HTML code.
+            soup = get_beautifulsoup(url)
+            #Scrape table data.
+            headers = scrape_headers(soup)
+            states = first_column_values(soup)
+            agg_assaults = scrape_values(soup,"odd group1")
+            firearms = scrape_values(soup,"even group2")
+            knives = scrape_values(soup,"odd group3")
+            other_weapons = scrape_values(soup,"even group4")
+            personal_weapons = scrape_values(soup,"odd group5")
+            agency_count = scrape_values(soup,"even group6")
+            populations = scrape_values(soup,"odd group7")
+            #Produce dataframe with scraped data.
+            assaults_dataframe = build_dataframe(headers, states, agg_assaults, firearms, knives, other_weapons, personal_weapons, agency_count, populations)
 
-    #Change the column headers of the dataframes to match those of the target SQL tables.
-    #This will make data insertion smoother.
-    change_dataframe_column_names(cursor,'assault_weapon_stats', assaults_dataframe)
-    change_dataframe_column_names(cursor,'robbery_weapon_stats', robberies_dataframe)
+            #Scraping and Building the Robbery Dataframe
+            #Web address for FBI Robbery by Weapon Type 2019 Table.
+            url = 'https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/tables/table-21'
+            #Obtain webpage HTML code.
+            soup = get_beautifulsoup(url)
+            #Scrape table data.
+            headers = scrape_headers(soup)
+            states = first_column_values(soup)
+            robberies = scrape_values(soup,"odd group1")
+            firearms = scrape_values(soup,"even group2")
+            knives = scrape_values(soup,"odd group3")
+            other_weapons = scrape_values(soup,"even group4")
+            strong_arm = scrape_values(soup,"odd group5")
+            agency_count = scrape_values(soup,"even group6")
+            populations = scrape_values(soup,"odd group7")
+            #Produced dataframe with scraped data.
+            robberies_dataframe = build_dataframe(headers, states, robberies, firearms, knives, other_weapons, strong_arm, agency_count, populations)
 
-    #Insert dataframes into the respective database tables.
-    insert_dataframe_to_sqlite_DB(assaults_dataframe, 'assault_weapon_stats', dbconn)
-    insert_dataframe_to_sqlite_DB(robberies_dataframe, 'robbery_weapon_stats', dbconn)
+            #Connect to database/create one if not already existing.
+            dbconn, cursor = connect_to_database()
 
-    #Create unpivoted dataframes in order to visualize as a barplot with Seaborn.
-    #unpivot_assault_df = assaults_dataframe.melt(id_vars = ['state'], value_vars = ['firearms', 'knives_cutting_weapons', 'other_weapons', 'personal_weapons'], var_name = 'Weapon Type', value_name = 'Count')
-    #unpivot_robbery_df = robberies_dataframe.melt(id_vars = ['state'], value_vars = ['firearms', 'knives_cutting_weapons', 'other_weapons', 'strong_arm'], var_name = 'Weapon Type', value_name = 'Count')
+            #Create tables in SQL to store scraped data.
+            create_assault_table_sql(dbconn, cursor)
+            create_robbery_table_sql(dbconn, cursor)
 
-    #Query the SQL tables to build lists of SUMs for the different weapon types.
-    total1 = get_assault_totals(cursor)
-    total2= get_robbery_totals(cursor)
-    #Create dataframes using these sums to be visualized as column charts.
-    df1 = pd.DataFrame({'Weapon Used in Assault':['Firearms', 'Knives and Cutting', 'Other', 'Personal'], 'Totals':total1})
-    df2 = pd.DataFrame({'Weapon Used in Robbery':['Firearms', 'Knives and Cutting', 'Other', 'Strong Arm'], 'Totals':total2})
+            #Change the column headers of the dataframes to match those of the target SQL tables.
+            #This will make data insertion smoother.
+            change_dataframe_column_names(cursor,'assault_weapon_stats', assaults_dataframe)
+            change_dataframe_column_names(cursor,'robbery_weapon_stats', robberies_dataframe)
 
-    #Build dataframes for top 10 states in total assaults and robberies.
-    top_assault_states = get_assault_top_10_states(dbconn)
-    top_robbery_states = get_robberies_top_10_states(dbconn)
+            #Insert dataframes into the respective database tables.
+            insert_dataframe_to_sqlite_DB(assaults_dataframe, 'assault_weapon_stats', dbconn)
+            insert_dataframe_to_sqlite_DB(robberies_dataframe, 'robbery_weapon_stats', dbconn)
 
-    ###############################################
-    #Code for displaying visuals.
-    ###############################################
-    #Create column charts for each table.
-    figure, axes = plt.subplots(nrows=1, ncols=2, figsize=(18,5))
-    figure.suptitle("Comparison of Weapons Used in Assaults vs Robberies")
-    df1.plot.bar(x='Weapon Used in Assault', rot= 0, ax=axes[0])
-    df2.plot.bar(x='Weapon Used in Robbery', rot= 0, ax=axes[1])
-    plt.show()
+            #Create unpivoted dataframes in order to visualize as a barplot with Seaborn.
+            #unpivot_assault_df = assaults_dataframe.melt(id_vars = ['state'], value_vars = ['firearms', 'knives_cutting_weapons', 'other_weapons', 'personal_weapons'], var_name = 'Weapon Type', value_name = 'Count')
+            #unpivot_robbery_df = robberies_dataframe.melt(id_vars = ['state'], value_vars = ['firearms', 'knives_cutting_weapons', 'other_weapons', 'strong_arm'], var_name = 'Weapon Type', value_name = 'Count')
 
-    #Create barplot for each unpivoted dataframe using Seaborn.
-    #figure = plt.figure(figsize=(18,5))
-    #figure.add_subplot(1,2,1)
-    #sb1 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_assault_df)
-    #figure.add_subplot(1,2,2)
-    #sb2 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_robbery_df)
-    #sb1.set(xlabel='Weapons in Assaults')
-    #sb2.set(xlabel='Weapons in Robberies')
-    #sb2.set(ylabel=None)
-    #plt.show()
+            #Query the SQL tables to build lists of SUMs for the different weapon types.
+            total1 = get_assault_totals(cursor)
+            total2= get_robbery_totals(cursor)
+            #Create dataframes using these sums to be visualized as column charts.
+            df1 = pd.DataFrame({'Weapon Used in Assault':['Firearms', 'Knives and Cutting', 'Other', 'Personal'], 'Totals':total1})
+            df2 = pd.DataFrame({'Weapon Used in Robbery':['Firearms', 'Knives and Cutting', 'Other', 'Strong Arm'], 'Totals':total2})
 
-    #Insert code for Top 10 state bar charts.
-    figure = plt.figure(figsize=(18,5))
-    figure.suptitle("Comparison of Top 10 States in Aggravated Assaults and Robberies")
-    figure.add_subplot(1,2,1)
-    sns.set_color_codes("pastel")
-    sb1 = sns.barplot(x="Total Assaults", y="State", data=top_assault_states, color="b")
-    figure.add_subplot(1,2,2)
-    sns.set_color_codes("pastel")
-    sb2 = sns.barplot(x="Total Robberies", y="State", data=top_robbery_states, color="b")
-    sb2.set(ylabel=None)
-    plt.show()
+            #Build dataframes for top 10 states in total assaults and robberies.
+            top_assault_states = get_assault_top_10_states(dbconn)
+            top_robbery_states = get_robberies_top_10_states(dbconn)
 
-    #Close the database connection and cursor
-    close_DB_Resources(dbconn,cursor)
+            ###############################################
+            #Code for displaying visuals.
+            ###############################################
+            #Create column charts for each table.
+            figure, axes = plt.subplots(nrows=1, ncols=2, figsize=(18,5))
+            figure.suptitle("Comparison of Weapons Used in Assaults vs Robberies")
+            df1.plot.bar(x='Weapon Used in Assault', rot= 0, ax=axes[0])
+            df2.plot.bar(x='Weapon Used in Robbery', rot= 0, ax=axes[1])
+            plt.show()
 
+            #Create barplot for each unpivoted dataframe using Seaborn.
+            #figure = plt.figure(figsize=(18,5))
+            #figure.add_subplot(1,2,1)
+            #sb1 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_assault_df)
+            #figure.add_subplot(1,2,2)
+            #sb2 = sns.barplot(x='Weapon Type', y='Count', data=unpivot_robbery_df)
+            #sb1.set(xlabel='Weapons in Assaults')
+            #sb2.set(xlabel='Weapons in Robberies')
+            #sb2.set(ylabel=None)
+            #plt.show()
+
+            #Insert code for Top 10 state bar charts.
+            figure = plt.figure(figsize=(18,5))
+            figure.suptitle("Comparison of Top 10 States in Aggravated Assaults and Robberies")
+            figure.add_subplot(1,2,1)
+            sns.set_color_codes("pastel")
+            sb1 = sns.barplot(x="Total Assaults", y="State", data=top_assault_states, color="b")
+            figure.add_subplot(1,2,2)
+            sns.set_color_codes("pastel")
+            sb2 = sns.barplot(x="Total Robberies", y="State", data=top_robbery_states, color="b") 
+            sb2.set(ylabel=None)
+            plt.show()
+
+            #Close the database connection and cursor
+            close_DB_Resources(dbconn,cursor)
+        
+        #If at least one of the webpages has a status code other than 200, print out an error message and the program ends.
+        else:
+            if status1 != 200 and status2 != 200:
+                print('Problem with both', url1, 'and', url2)
+            elif status1 != 200:
+                print('Problem with', url1)
+            else:
+                print('Problem with', url2)
+
+    #If there is no Internet connection, print out error message and end the program.
+    else:
+        print('Please connect to the Internet and try again.')
 
 main()
